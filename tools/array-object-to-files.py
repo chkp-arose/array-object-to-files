@@ -9,8 +9,8 @@ from dify_plugin.entities.tool import ToolInvokeMessage
 logger = logging.getLogger(__name__)
 
 class ToolParameters(BaseModel):
-    # 'any' in the manifest means this can be list/dict/string at runtime
-    objects: Union[List[Dict[str, Any]], Dict[str, Any], str]
+    # This matches the manifest parameter name "files"
+    files: Union[List[Dict[str, Any]], Dict[str, Any], str]
 
 class ArrayObjectToFilesTool(Tool):
     """
@@ -18,8 +18,8 @@ class ArrayObjectToFilesTool(Tool):
     """
 
     def _invoke(self, tool_parameters: Dict[str, Any]) -> Generator[ToolInvokeMessage, None, None]:
-        if "objects" not in tool_parameters:
-            yield self.create_text_message("No 'objects' provided. Please pass an Array[Object].")
+        if "files" not in tool_parameters:
+            yield self.create_text_message("No 'files' provided. Please pass an Array[Object].")
             return
 
         try:
@@ -28,10 +28,10 @@ class ArrayObjectToFilesTool(Tool):
             yield self.create_text_message(f"Invalid parameters: {e}")
             return
 
-        objs = self._coerce_to_list_of_dicts(params.objects)
+        objs = self._coerce_to_list_of_dicts(params.files)
 
         if not objs:
-            yield self.create_text_message("Empty 'objects' array after coercion.")
+            yield self.create_text_message("Empty 'files' array after coercion.")
             return
 
         # Optional: log sanity check; no mutation
@@ -39,21 +39,7 @@ class ArrayObjectToFilesTool(Tool):
             if o.get("dify_model_identity") != "__dify__file__":
                 logger.debug("Item %s lacks dify_model_identity='__dify__file__' (passing through anyway).", i)
 
-        # Preferred path
-        try:
-            yield self.create_files_message(objs)
-            return
-        except AttributeError:
-            pass
-
-        # Fallbacks
-        try:
-            for o in objs:
-                yield self.create_file_message(o)
-            return
-        except AttributeError:
-            pass
-
+        # Single machine-readable output: JSON that contains Array[File]
         yield self.create_json_message({"files": objs})
 
     def _coerce_to_list_of_dicts(self, val: Union[List[Dict[str, Any]], Dict[str, Any], str]) -> List[Dict[str, Any]]:
@@ -72,5 +58,5 @@ class ArrayObjectToFilesTool(Tool):
                 if isinstance(parsed, dict):
                     return [parsed]
             except Exception:
-                logger.debug("objects is a plain string, not JSON; cannot coerce.")
+                logger.debug("files is a plain string, not JSON; cannot coerce.")
         return []

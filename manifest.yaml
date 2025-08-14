@@ -7,12 +7,45 @@ label:
 description:
   en_US: Accepts an Array[Object] already shaped like Dify files and returns it as Array[File] without modification.
 icon: array-object-to-files.png
+
 resource:
   memory: 268435456
   permission: {}
-plugins:
-  tools:
-    - provider/array-object-to-files.yaml
+
+provider:
+  type: python
+  entry: tools.array_object_to_files:ArrayObjectToFilesTool  # module.path:ClassName
+
+tools:
+  - tool_name: array_object_to_files
+    label:
+      en_US: Array[Object] → Files
+    description:
+      en_US: Passes through an Array[Object] that already matches Dify's file schema and outputs it as Array[File].
+    parameters:
+      - name: files
+        label:
+          en_US: Files
+        type: array
+        required: true
+        items:
+          type: object
+          properties:
+            dify_model_identity:
+              type: string
+            url:
+              type: string
+            remote_url:
+              type: string
+            filename:
+              type: string
+            mime_type:
+              type: string
+            size:
+              type: integer
+        ui:
+          component: json
+
 meta:
   version: 0.0.1
   arch:
