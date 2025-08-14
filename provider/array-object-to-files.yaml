@@ -1,0 +1,15 @@
+identity:
+  author: chkp-arose
+  name: array-object-to-files
+  label:
+    en_US: array-object-to-files
+  description:
+    en_US: Accepts an Array[Object] already shaped like Dify files and returns it as Array[File] without modification.
+  icon: array-object-to-files.png
+
+
+tools:
+  - tools/array-object-to-files.yaml
+extra:
+  python:
+    source: provider/array-object-to-files.py
