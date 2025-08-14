@@ -6,7 +6,6 @@ label:
   en_US: Array[Object] → Array[File]
 description:
   en_US: Accepts an Array[Object] already shaped like Dify files and returns it as Array[File] without modification.
-author: you
 icon: 📁
 tags:
   - files
@@ -18,13 +17,28 @@ tools:
     description:
       en_US: Passes through an Array[Object] that already matches Dify's file schema and outputs it as Array[File].
     parameters:
-      - name: objects
-        type: array[object]
-        required: true
-        label:
-          en_US: Objects
-        description:
-          en_US: Array of objects already formatted as Dify file objects (e.g., dify_model_identity="__dify__file__").
+      - name: files
+        type: array
+        items:
+          type: object
+          properties:
+            dify_model_identity:
+              type: string
+              description: Optional; if "__dify__file__", the object is a native Dify File.
+            url:
+              type: string
+              description: Absolute URL to the file
+            remote_url:
+              type: string
+              description: Absolute URL to the file (alternate key)
+            filename:
+              type: string
+            mime_type:
+              type: string
+            size:
+              type: integer
+        required: false 
+        form: llm
     outputs:
       - name: files
         type: array[file]
